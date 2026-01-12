@@ -10,6 +10,8 @@ def parse_eng(val):
     val = val.strip()
 
     scale = {
+        'f': 1e-15,
+        'p': 1e-12,
         'n': 1e-9,
         'u': 1e-6,
         'm': 1e-3,
