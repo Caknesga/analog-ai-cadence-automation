@@ -1,1 +1,1 @@
-print("VENV + Python working")
+print("Hello world from venv test!")
