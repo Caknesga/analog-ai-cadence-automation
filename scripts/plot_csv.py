@@ -28,7 +28,7 @@ def parse_eng(val):
 
 rows = []
 
-with open("cadence/results/vouts.csv") as f:
+with open("_vouts.csv") as f:
     for line in f:
         if line.strip().startswith("#") or not line.strip():
             continue  # skip comments / empty lines
