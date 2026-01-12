@@ -74,3 +74,33 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+
+N_CHECK = 10
+LOW_TH  = 0.01
+HIGH_TH = 0.4
+
+
+decisions = []
+
+for i in range(vouts.shape[1]):
+    last_vals = vouts[-N_CHECK:, i]
+
+    if np.all(last_vals < LOW_TH):
+        decision = 0
+    elif np.all(last_vals > HIGH_TH):
+        decision = 1
+    else:
+        decision = "UNDECIDED"
+
+    decisions.append(decision)
+
+print("Decisions for each output:", decisions)
+
+if decisions == [0, 0, 0, 1]:
+    print("Predicted class: Right Column")
+elif decisions == [0, 0, 1, 0]:
+    print("Predicted class: Left Column")
+elif decisions == [0, 1, 0, 0]:
+    print("Predicted class: Bottom Row")
+elif decisions == [1, 0, 0, 0]:
+    print("Predicted class: Top Row")
