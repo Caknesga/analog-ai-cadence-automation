@@ -4,6 +4,9 @@ from src.data.synthetic import _sigmoid
 import torch
 import torch.nn as nn   
 from torch.utils.data import DataLoader, TensorDataset
+from scripts.evaluation import evaluate_binary_classifier, compute_margins, evaluate_with_logit_noise
+import json
+import datetime
 
 BATCH_SIZE = 64
 EPOCHS=500
@@ -11,8 +14,8 @@ LEARNING_RATE=0.001
 RANDOM_SEED=42
 
 data_dir= Path("data/raw")
-X_file = data_dir / "synth_X_e4.csv"
-y_file = data_dir / "synth_y_e4.csv"
+X_file = data_dir / "synth_X_delta_0.8t.csv"
+y_file = data_dir / "synth_y_delta_0.8t.csv"
 
 
 torch.manual_seed(RANDOM_SEED)
@@ -58,9 +61,9 @@ test_loader = DataLoader(
 class MLP(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fc1= nn.Linear(5,16)
+        self.fc1= nn.Linear(5,8)
         self.Relu=nn.ReLU()
-        self.fc2= nn.Linear(16,1)
+        self.fc2= nn.Linear(8,1)
         #self.fc3= nn.Linear(8,1)
 
     def forward(self, x):
@@ -90,24 +93,44 @@ for epoch in range(EPOCHS):
     if (epoch + 1) % 50 == 0:
         print(f"Epoch {epoch+1}/{EPOCHS}, Loss = {loss.item():.4f}")
 
+trained_model=model
+#function to return trained model
+def return_trained_model():
+    
+    return model
 
-#evaluation
-def accuracy(model, loader):
-    model.eval()
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for xb, yb in loader:
-            logits = model(xb)
-            preds = (logits > 0).float()
-            correct += (preds == yb).sum().item()
-            total += yb.numel()
-    return correct / total
+def prompt_and_save_model(model, metrics, model_name):
 
-#accuracy calculation
-train_acc=accuracy(model, train_loader)
-test_acc=accuracy(model, test_loader)
+    answer = input("\nSave this model for HIL testing? (y/n): ").strip().lower()
+    if answer not in ("y", "yes"):
+        print("Model not saved.")
+        return
+
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    model_dir = Path("models/trained") / f"{model_name}_{timestamp}"
+    model_dir.mkdir(parents=True, exist_ok=True)
+
+    #Save model weights
+    torch.save(model.state_dict(), model_dir / "weights.pt")
+
+    # Save metadata 
+    metadata = {
+        "model_name": model_name,
+        "timestamp": timestamp,
+        "metrics": metrics,
+        "architecture": "5 → 16 → 1 ReLU",
+        "decision_threshold": 0.0,
+    }
+
+    with open(model_dir / "metadata.json", "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    print(f"\nModel saved to: {model_dir}")
 
 #results
-print(f"Train Accuracy: {train_acc:.4f}")
-print(f"Test Accuracy: {test_acc:.4f}")
+print("\n=== Test set evaluation ===")
+metrics = evaluate_binary_classifier(model, X_test, y_test, threshold=0.0)
+#decide if model to be saved
+prompt_and_save_model(model, metrics,model_name="mlp_5-16-1_relu_test")
+

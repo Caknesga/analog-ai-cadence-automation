@@ -8,8 +8,8 @@ N_FEATURES = 5
 RANDOM_SEED = 42
 
 out_dir = Path("data/raw")
-X_file = out_dir / "synth_X_e4.csv"
-y_file = out_dir / "synth_y_e4.csv"
+X_file = out_dir / "synth_X_delta_0.8t.csv"
+y_file = out_dir / "synth_y_delta_0.8t.csv"
 
 #data generation function
 def generate_data(n_sample:int):
@@ -22,8 +22,28 @@ def generate_data(n_sample:int):
     cancer=(-1.1 + 2.5*X[:,0] - 0.8*X[:,1] + 0.9*X[:,2]
              + 0.4*X[:,3] - 0.6*X[:,4]+
              1.2*X[:,0]*X[:,1]-0.9*X[:,2]*X[:,4]+0.7*X[:,3]*X[:,2]+0.8*np.tanh(2*(X[:,2]-0.5))-0.7*(X[:,3]-0.5)**2)
+    
+
+    delta = 0.8   # width of uncertain band (tune this)
+    tau   = 0.5   # softness inside band
+
+    y = np.zeros(len(cancer), dtype=int)
+
+    # Clearly cancer
+    y[cancer >  delta] = 1
+
+    # Clearly non-cancer
+    y[cancer < -delta] = 0
+
+    # Uncertain region
+    mask = np.abs(cancer) <= delta
+    probs = 1.0 / (1.0 + np.exp(-cancer[mask] / tau))
+    y[mask] = (np.random.rand(mask.sum()) < probs).astype(int)
+
+   # y=(cancer>0).astype(int)
+    # Convert to probabilities?, NOT SURE IF NEEDED
     probs=_sigmoid(cancer)
-    y = (np.random.rand(len(probs)) < probs).astype(int)
+    #y = (np.random.rand(len(probs)) < probs).astype(int)
     """
         # Cancer rule (ground truth)
     cancer = (
