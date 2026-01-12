@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Path to CSV
-csv_path = "cadence/results/vouts.csv"
+csv_path = "vouts.csv"
 
 # Load data (space-separated, no header)
-data = np.loadtxt(csv_path)
+data = np.loadtxt(csv_path,skiprows=3)
 
 print("Data shape:", data.shape)
 
