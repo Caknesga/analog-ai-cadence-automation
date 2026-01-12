@@ -28,10 +28,18 @@ def parse_eng(val):
 
 rows = []
 
-with open("_vouts.csv") as f:
+"""with open("_vouts.csv") as f:
     for line in f:
         if line.strip().startswith("#") or not line.strip():
             continue  # skip comments / empty lines
+        parts = line.split()
+        rows.append([parse_eng(p) for p in parts])"""
+
+
+with open("_vouts.csv") as f:
+    for i, line in enumerate(f):
+        if i < 3:        # skip first 3 rows → data starts at row 4
+            continue
         parts = line.split()
         rows.append([parse_eng(p) for p in parts])
 
