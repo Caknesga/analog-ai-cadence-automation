@@ -1,13 +1,44 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Path to CSV
-csv_path = "_vouts.csv"
 
-# Load data (space-separated, no header)
-data = np.loadtxt(csv_path,skiprows=3)
+def parse_eng(val):
+ 
+    if isinstance(val, (int, float)):
+        return float(val)
+
+    val = val.strip()
+
+    scale = {
+        'n': 1e-9,
+        'u': 1e-6,
+        'm': 1e-3,
+        'k': 1e3,
+        'M': 1e6,
+        'G': 1e9,
+    }
+
+    suffix = val[-1]
+    if suffix in scale:
+        return float(val[:-1]) * scale[suffix]
+    else:
+        return float(val)
+    
+
+
+rows = []
+
+with open("cadence/results/vouts.csv") as f:
+    for line in f:
+        if line.strip().startswith("#") or not line.strip():
+            continue  # skip comments / empty lines
+        parts = line.split()
+        rows.append([parse_eng(p) for p in parts])
+
+data = np.array(rows)
 
 print("Data shape:", data.shape)
+print("First row:", data[0])
 
 # Case 1: time + 4 outputs (most likely)
 if data.shape[1] == 5:
