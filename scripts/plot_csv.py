@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Path to CSV
-csv_path = "vouts.csv"
+csv_path = "_vouts.csv"
 
 # Load data (space-separated, no header)
 data = np.loadtxt(csv_path,skiprows=3)
