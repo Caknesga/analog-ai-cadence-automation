@@ -1,6 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import subprocess
+import os
 
+env = os.environ.copy()
+env["VIN1"] = "0.5"
+env["VIN2"] = "0.5"
+env["VIN3"] = "0"
+env["VIN4"] = "0"
+
+subprocess.run(
+    ["./scripts/run_ocean.sh"],
+    env=env,
+    check=True
+)
 
 def parse_eng(val):
  
@@ -38,7 +51,7 @@ rows = []
         rows.append([parse_eng(p) for p in parts])"""
 
 
-with open("_vouts.csv") as f:
+with open("test6_vouts.csv") as f:
     for i, line in enumerate(f):
         if i < 3:        # skip first 3 rows → data starts at row 4
             continue
