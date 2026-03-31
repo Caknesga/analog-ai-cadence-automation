@@ -9,15 +9,10 @@ from sklearn.metrics import roc_auc_score
 
 
 # Load clean dataset
-df = pd.read_csv("data/raw/4_proteins_clean.csv")
+df = pd.read_csv("data/raw/10_proteins_dataset.csv")
 
-# Features (X)
-X = df[["AGR2", "KRT19", "MUC16", "RRM2"]].values
-
-# Labels (y)
-y = df["cancer"].values
-
-y = y.reshape(-1, 1)
+X = df.drop(columns=["cancer"]).values
+y = df["cancer"].values.reshape(-1,1)
 
 # Optional checks
 print(df.head())
@@ -48,12 +43,10 @@ class CancerModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.model = nn.Sequential(
-            nn.Linear(4, 16),
+            nn.Linear(10, 32),
             nn.ReLU(),
-            nn.Linear(16, 8),
-            nn.ReLU(),
-            nn.Linear(8,1 ),
-            nn.Sigmoid()
+           
+            nn.Linear(32,1 )
         )
     
     def forward(self, x):
@@ -61,15 +54,17 @@ class CancerModel(nn.Module):
 
 model = CancerModel()
 
-criterion = nn.BCELoss()          # binary classification
+
+pos_weight = torch.tensor([1.5])
+criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
 # Training loop
-EPOCHS = 500
+EPOCHS = 200
 
 for epoch in range(EPOCHS):
-   
+    model.train()
     
     outputs = model(X_train)
     loss = criterion(outputs, y_train)
@@ -86,14 +81,16 @@ for epoch in range(EPOCHS):
 model.eval()
 
 with torch.no_grad():
-    preds = model(X_test)
-    predicted = (preds > 0.5).float()
+    logits = model(X_test)
+    probs = torch.sigmoid(logits)
+
+    predicted = (probs > 0.5).float()
     accuracy = (predicted == y_test).float().mean()
 
 print("Accuracy:", accuracy.item())
 
-with torch.no_grad():
-    preds = model(X_test).numpy()
-
-auc = roc_auc_score(y_test.numpy(), preds)
+auc = roc_auc_score(y_test.numpy(), probs.numpy())
 print("AUC:", auc)
+
+predicted = (probs > 0.5).float()
+print(predicted.sum())   # how many predicted as cancer
