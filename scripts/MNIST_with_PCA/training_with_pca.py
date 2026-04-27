@@ -29,7 +29,7 @@ print("Total explained variance:", np.sum(pca.explained_variance_ratio_))
 
 model= keras.Sequential([
     layers.Input(shape=(16,)),
-    layers.Dense(32, activation="relu"),
+    layers.Dense(8, activation="relu"),
     layers.Dense(10, activation="softmax")
 ])
 
@@ -41,7 +41,7 @@ model.compile(
     metrics=["accuracy"]
 )
 
-history=model.fit(X_train_pca,y_train, epochs=7, batch_size=32, validation_split=0.1)
+history=model.fit(X_train_pca,y_train, epochs=10, batch_size=32, validation_split=0.1)
 
 #evaulate
 test_loss, test_acc=model.evaluate(X_test_pca,y_test)
@@ -65,5 +65,5 @@ for weight in w:
 #    print(layer.get_weights())
 
 
-model.save("models/mnist_pca_model.h5")
+model.save("models/mnist_pca_model_8.h5")
 

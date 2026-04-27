@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 
 
 
-model=load_model("models/mnist_pca_model.h5")
+model=load_model("models/mnist_pca_model_8.h5")
 
 (X_train,y_train),(X_test,y_test) = keras.datasets.mnist.load_data()
-print(y_train)
+
 
 X_train=X_train.reshape(-1, 28*28).astype("float32") / 255.0
 X_test=X_test.reshape(-1, 28*28).astype("float32") / 255.0
@@ -46,10 +46,11 @@ x_manual = np.array([
 ], dtype=np.float32)
 
 
-sample_index = 115 # CHNAGE THIS ONE TO TEST DIFFEREN DIGIT SAMPLES
+sample_index = 44  # CHNAGE THIS ONE TO TEST DIFFEREN DIGIT SAMPLES
 x_manual=X_test_pca[sample_index].astype(np.float32)
 
-
+print("Input to first layer (x_manual):", x_manual.shape)
+print("Input values:", (x_manual*100).astype(int))
 
 
 z1 = np.dot(x_manual, W1) + b1
@@ -66,14 +67,14 @@ print("Hidden output after ReLU h1:")
 print(h1)
 
 last_layer_model= keras.Sequential([
-    layers.Input(shape=(32,)),
+    layers.Input(shape=(8,)), #change the input shape to match h1
     layers.Dense(10, activation="softmax")
 ])
 
 W2, b2 = model.layers[1].get_weights()
 last_layer_model.layers[0].set_weights([W2, b2])
 
-h1_batch = np.expand_dims(h1, axis=0)   # shape (1, 32)
+h1_batch = np.expand_dims(h1, axis=0)   # shape (1, 16)
 print("Input to last layer (h1):", h1_batch.shape)
 y_pred_split = last_layer_model.predict(h1_batch, verbose=0)
 
@@ -82,6 +83,20 @@ print(y_pred_split[0])
 
 print("Predicted class:")
 print(np.argmax(y_pred_split[0]))
+
+
+#quantization for analog mapping
+scale=100
+
+W1_int=np.round(W1*scale).astype(int)
+b1_int=np.round(b1*scale).astype(int)
+
+
+print("\nInteger W1:")
+print(W1_int)
+
+print("\nInteger b1:")
+print(b1_int)
 
 plt.imshow(X_test[sample_index].reshape(28, 28), cmap="gray")
 plt.title(f"True label: {y_test[sample_index]}")
