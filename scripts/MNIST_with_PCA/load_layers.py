@@ -50,21 +50,17 @@ sample_index = 44  # CHNAGE THIS ONE TO TEST DIFFEREN DIGIT SAMPLES
 x_manual=X_test_pca[sample_index].astype(np.float32)
 
 print("Input to first layer (x_manual):", x_manual.shape)
-print("Input values:", (x_manual*100).astype(int))
+print("Input values:", (x_manual*100).astype(int)/200)
 
 
 z1 = np.dot(x_manual, W1) + b1
 h1 = np.maximum(0, z1) #Relu activation
 
 
-print("z1 shape:", z1.shape) 
 print("h1 shape:", h1.shape)
 
-print("Pre-activation z1:")
-print(z1)
-
 print("Hidden output after ReLU h1:")
-print(h1)
+print((h1*100).astype(int)/200)
 
 last_layer_model= keras.Sequential([
     layers.Input(shape=(8,)), #change the input shape to match h1
@@ -88,8 +84,8 @@ print(np.argmax(y_pred_split[0]))
 #quantization for analog mapping
 scale=100
 
-W1_int=np.round(W1*scale).astype(int)
-b1_int=np.round(b1*scale).astype(int)
+W1_int=np.round(W1*scale).astype(int)/200
+b1_int=np.round(b1*scale).astype(int)/200
 
 
 print("\nInteger W1:")
