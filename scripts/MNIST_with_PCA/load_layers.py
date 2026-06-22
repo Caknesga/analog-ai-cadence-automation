@@ -25,25 +25,10 @@ X_test_pca=pca.transform(X_test)
 #summary
 model.summary()
 
-weights_1= model.layers[0].get_weights()
-weights_2= model.layers[1].get_weights()
-
-w=weights_1[0]
-b=weights_1[1]
-
-
 W1, b1 = model.layers[0].get_weights()
 
 print("Weights shape:", W1.shape)
 print("Bias shape:", b1.shape)
-
-
-x_manual = np.array([
-    0.12, -0.35, 1.02, 0.48,
-    -0.77, 0.11, 0.56, -0.22,
-    0.93, -0.14, 0.07, 0.31,
-    -0.41, 0.25, -0.66, 0.89
-], dtype=np.float32)
 
 
 sample_index = 44  # CHNAGE THIS ONE TO TEST DIFFEREN DIGIT SAMPLES
@@ -74,11 +59,15 @@ h1_batch = np.expand_dims(h1, axis=0)   # shape (1, 16)
 print("Input to last layer (h1):", h1_batch.shape)
 y_pred_split = last_layer_model.predict(h1_batch, verbose=0)
 
-print("Output probabilities from split model:")
-print(y_pred_split[0])
+#print("Output probabilities from split model:")
+#print(y_pred_split[0])
 
 print("Predicted class:")
 print(np.argmax(y_pred_split[0]))
+
+
+
+
 
 
 #quantization for analog mapping
