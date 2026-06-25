@@ -1,7 +1,5 @@
 ﻿# Mapping-Neural-Network.
 
-# Mapping Neural Network
-
 ## Overview
 
 **Mapping Neural Network** is a research repository for developing, testing, and validating neural networks that are intended to be implemented on custom analog integrated circuits. The repository bridges the gap between machine learning software and analog hardware by providing an automated workflow from neural network inference to Cadence circuit simulation.
@@ -124,72 +122,6 @@ This allows direct validation of the analog implementation.
 
 ---
 
-## Repository Structure
-
-```
-Mapping-Neural-Network/
-
-├── datasets/
-│   Input datasets
-│
-├── models/
-│   Trained neural network models
-│
-├── preprocessing/
-│   Dataset preprocessing scripts
-│
-├── mapping/
-│   Weight mapping algorithms
-│
-├── cadence/
-│   OCEAN scripts
-│   Automation utilities
-│
-├── simulations/
-│   Simulation outputs
-│
-├── evaluation/
-│   Result comparison
-│   Performance metrics
-│
-├── plots/
-│   Generated figures
-│
-└── README.md
-```
-
-*(The exact directory names may vary depending on the project version.)*
-
----
-
-## Technologies
-
-* Python
-* TensorFlow / Keras
-* NumPy
-* Pandas
-* Matplotlib
-* Cadence Virtuoso
-* OCEAN
-* Analog IC Design
-
----
-
-## Typical Development Flow
-
-1. Prepare dataset
-2. Train neural network
-3. Evaluate software accuracy
-4. Convert network parameters
-5. Generate OCEAN scripts
-6. Execute Cadence simulations
-7. Extract simulation results
-8. Compare analog and software outputs
-9. Optimize circuit parameters
-10. Repeat until convergence
-
----
-
 ## Applications
 
 The framework is suitable for
@@ -213,7 +145,8 @@ This repository is actively used as a research platform for developing analog ne
 
 This repository is intended for research and educational purposes.
 
- 
+##Additional Notes for myself 
+
 If you see:
 
 conda: command not found
