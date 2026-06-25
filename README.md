@@ -145,7 +145,7 @@ This repository is actively used as a research platform for developing analog ne
 
 This repository is intended for research and educational purposes.
 
-##Additional Notes for myself 
+## Additional Notes for myself 
 
 If you see:
 
