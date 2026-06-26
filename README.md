@@ -176,4 +176,6 @@ you just wont see the render of cadence)
 
 5- cd repository
 
-6- ocean -nograph -restore cadence/ocean/run_one_layer.ocn
+6- Start the python file that runs source the ocean atuoamtically (if not - ocean -nograph -restore cadence/ocean/run_one_layer.ocn)
+
+7- You hav ethe simualtions result as .csv data
