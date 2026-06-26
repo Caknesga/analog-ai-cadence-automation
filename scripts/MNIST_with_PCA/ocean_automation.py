@@ -6,7 +6,9 @@ from sklearn.decomposition import PCA
 import joblib
 from sklearn.neural_network import MLPClassifier
 from tensorflow.keras.models import load_model
-import matplotlib.pyplot as plt
+import subprocess
+import os
+import time
 
 
 # Load the trained model
@@ -113,4 +115,126 @@ print(y_test[sample_index])
 #OCEAN SIMULATION PART 
 
 
+def parse_eng(val):
+    if isinstance(val, (int, float)):
+        return float(val)
+    val = val.strip()
+    scale = {
+        'f': 1e-15, 'p': 1e-12, 'n': 1e-9,
+        'u': 1e-6,  'm': 1e-3,  'k': 1e3,
+        'M': 1e6,   'G': 1e9,
+    }
+    suffix = val[-1]
+    return float(val[:-1]) * scale[suffix] if suffix in scale else float(val)
+
+
+# ============================================================
+# YOUR WORKING OCEAN FILE — just update the desVar values
+# ============================================================
+
+def update_and_run_ocean(
+    template_path   = "./cadence/ocean/transfer.ocn",   # your working ocean file
+    output_csv      = "./SWAP_test1.csv",
+    neuron_idx      = 0,
+    x_input         = None,                 # shape (16,)
+    weights         = None,                 # shape (16,) — W1_int[:, neuron_idx]
+    signs           = None,                 # shape (16,) — S vector
+    capacitors      = None,                 # shape (16,) — C values in Farads
+):
+
+    # Read your existing working ocean file as template
+    with open(template_path, "r") as f:
+        ocean_content = f.read()
+
+    # --- Update desVar values in the ocean file ---
+    import re
+
+    def replace_desvar(content, name, value):
+        """Replace a desVar value in the ocean file."""
+        pattern = rf'(desVar\(\s*"{name}"\s*)([^\)]+)(\))'
+        replacement = rf'\g<1>{value}\g<3>'
+        return re.sub(pattern, replacement, content)
+
+    # Update V values (input voltages)
+    for i in range(16):
+        ocean_content = replace_desvar(ocean_content, f"V{i+1}", f"{x_input[i]:.4f}")
+
+    # Update C values (capacitors) — convert Farads to pF string
+    for i in range(16):
+        c_pf = capacitors[i] * 1e12
+        ocean_content = replace_desvar(ocean_content, f"C{i+1}", f"{c_pf:.4f}p")
+
+    # Update sign values
+    for i in range(16):
+        ocean_content = replace_desvar(ocean_content, f"s{i+1}", f"{signs[i]}")
+
+    # Update output csv name per neuron so files don't overwrite each other
+    neuron_csv = output_csv.replace(".csv", f"_neuron{neuron_idx}.csv")
+    ocean_content = ocean_content.replace(output_csv, neuron_csv)
+
+    # Write updated ocean file
+    updated_path = f"./SWAP_neuron{neuron_idx}.ocn"
+    with open(updated_path, "w") as f:
+        f.write(ocean_content)
+
+    print(f"[Neuron {neuron_idx}] Running Ocean simulation...")
+
+    # --------------------------------------------------------
+    # RUN YOUR OCEAN FILE WITH SUBPROCESS — same as before
+    # --------------------------------------------------------
+    result = subprocess.run(
+        ["ocean", "-nograph", "-replay", updated_path],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        print(f"[ERROR] Neuron {neuron_idx} failed:\n{result.stderr}")
+        return None
+
+    # Read output from csv
+    try:
+        with open(neuron_csv, "r") as f:
+            lines = [l.strip() for l in f.readlines() if l.strip()]
+        raw_val = lines[-1].split()[-1]
+        output_voltage = parse_eng(raw_val)
+        print(f"[Neuron {neuron_idx}] Output: {output_voltage:.6f} V")
+        return output_voltage
+    except Exception as e:
+        print(f"[ERROR] Could not read output for neuron {neuron_idx}: {e}")
+        return None
+
+S_matrix = np.zeros((16, 8))
+
+for neuron_idx in range(8):
+    weights_n = W1_int[:, neuron_idx]          # (16,) weights for this neuron
+    products  = weights_n * x_manual           # element-wise (16,)
+    S_matrix[:, neuron_idx] = np.where(products < 0, 1.5, 0.0)
+
+print("S_matrix shape:", S_matrix.shape)   # should be (16, 8)
+print(S_matrix)
+
+# ============================================================
+# MAIN — loop over 8 neurons
+# ============================================================
+
+h1_circuit = np.zeros(8)
+
+for neuron_idx in range(8):
+    weights  = W1_int[:, neuron_idx]
+    signs    = S_matrix[:, neuron_idx]        # now correctly (16,)
+    caps     = np.abs(weights) * 1e-12
+
+    output = update_and_run_ocean(
+        template_path = "./cadence/ocean/transfer.ocn",
+        output_csv    = "./SWAP_test2.csv",
+        neuron_idx    = neuron_idx,
+        x_input       = x_manual,
+        weights       = weights,
+        signs         = signs,
+        capacitors    = caps,
+    )
+
+    if output is not None:
+        h1_circuit[neuron_idx] = output
 
