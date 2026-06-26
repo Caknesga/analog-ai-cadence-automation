@@ -109,3 +109,8 @@ print(np.argmax(y_pred_split[0]))
 print("True class:")
 print(y_test[sample_index])
 
+
+#OCEAN SIMULATION PART 
+
+
+
