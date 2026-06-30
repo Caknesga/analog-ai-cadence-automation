@@ -1,8 +1,8 @@
-﻿# Mapping-Neural-Network.
+﻿# Analog-AI-Cadence-Automation
 
 ## Overview
 
-**Mapping Neural Network** is a research repository for developing, testing, and validating neural networks that are intended to be implemented on custom analog integrated circuits. The repository bridges the gap between machine learning software and analog hardware by providing an automated workflow from neural network inference to Cadence circuit simulation.
+This is a research repository for developing, testing, and validating neural networks that are intended to be implemented on custom analog integrated circuits. The repository bridges the gap between machine learning software and analog hardware by providing an automated workflow from neural network inference to Cadence circuit simulation.
 
 The main objective of this project is to verify whether a trained neural network can be accurately mapped onto analog hardware while maintaining its prediction accuracy and electrical performance.
 
