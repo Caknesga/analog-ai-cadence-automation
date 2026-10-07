@@ -1,0 +1,11 @@
+{
+  "model_name": "mlp_5-16-1_relu_test",
+  "timestamp": "20260109_145217",
+  "metrics": {
+    "accuracy": 0.8489999999999999,
+    "sensitivity": 0.8767857142074298,
+    "specificity": 0.8136363635439051
+  },
+  "architecture": "5 \u2192 16 \u2192 1 ReLU",
+  "decision_threshold": 0.0
+}
